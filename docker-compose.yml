@@ -1,0 +1,52 @@
+nginx:
+    image: nginx:latest
+    ports:
+        - '80:80'
+    volumes:
+        - ./nginx:/etc/nginx/conf.d
+        - ./logs/nginx:/var/log/nginx
+        - ./wordpress:/var/www/html
+    links:
+        - wordpress
+    restart: always
+
+mysql:
+    image: mariadb
+    ports:
+        - '3306:3306'
+    volumes:
+        - ./db-data:/var/lib/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: wp123
+    restart: always
+phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+        - mysql
+    ports:
+        - 8080:80
+    environment:
+        PMA_HOST: mysql
+        PMA_PORT: 3306
+        MYSQL_USERNAME: root
+        MYSQL_ROOT_PASSWORD: wp123
+        PHP_UPLOAD_MAX_FILESIZE: 1G
+        PHP_MAX_INPUT_VARS: 1G
+    volumes:
+      - /sessions
+    restart: always
+wordpress:
+    image: wordpress:4.7.1-php7.0-fpm
+    ports:
+        - '9000:9000'
+    volumes:
+        - ./wordpress:/var/www/html
+    environment:
+        - WORDPRESS_DB_NAME=wpdb
+        - WORDPRESS_TABLE_PREFIX=wp_
+        - WORDPRESS_DB_HOST=mysql
+        - WORDPRESS_DB_PASSWORD=wp123
+    links:
+        - mysql
+    restart: always
