@@ -11,5 +11,5 @@ git clone https://github.com/mpalpha/docker-lemp-wordpress.git docker-lemp-wordp
 
 ##### Run:
 ```bash
-docker-compose up -d
+docker-compose up
 ```
