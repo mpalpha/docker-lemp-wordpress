@@ -1,0 +1,27 @@
+# ignore default wordpress content
+wordpress/.htaccess
+wordpress/license.txt
+wordpress/readme.html
+wordpress/sitemap.xml
+wordpress/sitemap.xml.gz
+wordpress/*
+!wordpress/wp-content/
+wordpress/wp-content/*
+!wordpress/wp-content/mu-plugins/
+!wordpress/wp-content/plugins/
+!wordpress/wp-content/themes/
+wordpress/wp-content/plugins/*
+wordpress/wp-content/themes/*
+wordpress/wp-content/themes/twenty**/
+wordpress/wp-content/plugins/akismet
+wordpress/wp-content/wp-cache-config.php
+wordpress/wp-content/plugins/hello.php
+
+# ignore logs
+**/*.log
+
+# ignore node modules
+**/node_modules/
+
+# ignore local database
+db-data/
