@@ -2,6 +2,7 @@ version: '2.1'
 services:
     nginx:
         image: nginx:latest
+        container_name: wpdev_nginx
         ports:
             - '80:80'
         volumes:
@@ -14,36 +15,43 @@ services:
         restart: always
     mysql:
         image: mariadb
+        container_name: wpdev_mysql
         ports:
             - '3306:3306'
         volumes:
             - ./db-data:/var/lib/mysql
         environment:
-            MYSQL_ROOT_PASSWORD: wp123
+            MYSQL_ROOT_PASSWORD: password
         healthcheck:
-            test:  mysqladmin -uroot -pwp123 ping
+            test:  mysqladmin -uroot -ppassword ping || exit 1
             interval: 3s
             timeout: 1s
             retries: 5
         restart: always
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
+        container_name: wpdev_phpmyadmin
         links:
             - mysql
         ports:
             - 8080:80
         environment:
+            PMA_ARBITRARY: 1
             PMA_HOST: mysql
             PMA_PORT: 3306
             MYSQL_USERNAME: root
-            MYSQL_ROOT_PASSWORD: wp123
+            MYSQL_ROOT_PASSWORD: password
             PHP_UPLOAD_MAX_FILESIZE: 1G
             PHP_MAX_INPUT_VARS: 1G
         volumes:
             - /sessions
+        depends_on:
+            mysql:
+                condition: service_healthy
         restart: always
     wordpress:
-        image: wordpress:4.7.1-php7.0-fpm
+        image: wordpress:4.9.4-php7.2-fpm
+        container_name: wpdev_wordpress
         ports:
             - '9000:9000'
         volumes:
@@ -52,22 +60,10 @@ services:
             - WORDPRESS_DB_NAME=wpdb
             - WORDPRESS_TABLE_PREFIX=wp_
             - WORDPRESS_DB_HOST=mysql
-            - WORDPRESS_DB_PASSWORD=wp123
+            - WORDPRESS_DB_PASSWORD=password
         links:
             - mysql
         depends_on:
             mysql:
                 condition: service_healthy
         restart: always
-    wpcli:
-        image: wordpress:cli
-        volumes:
-            - ./wordpress:/var/www/html
-        links:
-            - mysql
-        depends_on:
-            mysql:
-                condition: service_healthy
-        healthcheck:
-            test: curl --fail -s http://localhost:80/wp-admin/ || exit 1
-        command: sh -c "sleep 20 && wp core install --path=/var/www/html --url=localhost --title=test --admin_user=test --admin_password=test --admin_email=test@example.com"
