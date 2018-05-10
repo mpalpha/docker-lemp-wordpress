@@ -50,7 +50,9 @@ services:
                 condition: service_healthy
         restart: always
     wordpress:
-        image: wordpress:4.9.4-php7.2-fpm
+        build:
+            context: ./
+            dockerfile: ./Dockerfile
         container_name: wpdev_wordpress
         ports:
             - '9000:9000'
